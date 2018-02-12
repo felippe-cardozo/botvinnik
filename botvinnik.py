@@ -17,13 +17,14 @@ class Botvinnik:
                             level=logging.INFO)
         self.logger = logging.getLogger(__name__)
 
-        for command, method in commands.items():
-            self.dispatcher.add_handler(CommandHandler(command, method))
+        for m in methods:
+            self.dispatcher.add_handler(CommandHandler(m.__name__, m))
 
         self.updater.start_polling()
 
 
 def wiki(bot, update):
+    '/wiki query_string -- returns wiki summary'
     query = ''.join(update.message.text.split()[1:])
     try:
         result = wikipedia.summary(query.strip()).split('\n')[0]
@@ -33,14 +34,24 @@ def wiki(bot, update):
 
 
 def veg(bot, update):
+    '/veg query_string -- returns top for recipes from tudoreceitas.com'
     query = ''.join(update.message.text.split()[1:])
     res = get_recipes(query)
     if not res:
-        message = 'Not found :/'
+        messages = ['Not found :/']
     else:
-        message = '\n'.join([re.sub('[{}]', '', str(i)) for i in res])
+        messages = [re.sub('[{}]', '\n', str(i)) for i in res]
+    [bot.send_message(chat_id=update.message.chat_id, text=message)
+        for message in messages[:4]]
+
+
+def help(bot, update):
+    '/help -- prints all avaiable commands and respective docs'
+    message = '\n'.join([i.__doc__ for i in methods])
     bot.send_message(chat_id=update.message.chat_id, text=message)
 
 
+methods = [wiki, veg, help]
+
 if __name__ == '__main__':
-    Botvinnik(commands={'wiki': wiki, 'veg': veg})
+    Botvinnik(commands=methods)

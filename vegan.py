@@ -3,7 +3,8 @@ from bs4 import BeautifulSoup
 
 
 def get_recipes(q):
-    url = 'https://tudoreceitas/pesquisa/q/{}/alimentacion_veganos/1'.format(q)
+    url = 'https://tudoreceitas.com/pesquisa/q/{}/alimentacion_veganos/1'\
+        .format(q)
     res = requests.get(url)
     if res.status_code != 200:
         return
