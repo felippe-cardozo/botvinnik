@@ -21,16 +21,23 @@ class Botvinnik:
             self.dispatcher.add_handler(CommandHandler(m.__name__, m))
 
         self.updater.start_polling()
+        self.updater.idle()
+
+
+def start(bot, update):
+    '/start -- I introduce myself'
+    message = "Hello, my name is Botvinnik, like the fammous Grand Master."
+    update.message.reply_text(message)
 
 
 def wiki(bot, update):
     '/wiki query_string -- returns wiki summary'
     query = ''.join(update.message.text.split()[1:])
     try:
-        result = wikipedia.summary(query.strip()).split('\n')[0]
+        message = wikipedia.summary(query.strip()).split('\n')[0]
     except wikipedia.exceptions.PageError as e:
-        result = e
-    bot.send_message(chat_id=update.message.chat_id, text=result)
+        message = e
+        update.message.reply_text(message)
 
 
 def veg(bot, update):
@@ -40,18 +47,17 @@ def veg(bot, update):
     if not res:
         messages = ['Not found :/']
     else:
-        messages = [re.sub('[{}]', '\n', str(i)) for i in res]
-    [bot.send_message(chat_id=update.message.chat_id, text=message)
-        for message in messages[:4]]
+        messages = [re.sub('[{}]', '\n', str(i)) for i in res[:4]]
+    [update.message.reply_text(message) for message in messages]
 
 
 def help(bot, update):
     '/help -- prints all avaiable commands and respective docs'
     message = '\n'.join([i.__doc__ for i in methods])
-    bot.send_message(chat_id=update.message.chat_id, text=message)
+    update.message.reply_text(message)
 
 
-methods = [wiki, veg, help]
+methods = [start, wiki, veg, help]
 
 if __name__ == '__main__':
     Botvinnik(commands=methods)
