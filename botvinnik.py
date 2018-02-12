@@ -1,5 +1,7 @@
 from telegram.ext import Updater, CommandHandler
+from telegram.error import TimedOut
 from vegan import get_recipes
+from time import sleep
 import logging
 import re
 import os
@@ -20,8 +22,14 @@ class Botvinnik:
         for m in methods:
             self.dispatcher.add_handler(CommandHandler(m.__name__, m))
 
-        self.updater.start_polling()
-        self.updater.idle()
+        while True:
+            try:
+                self.updater.start_polling()
+                self.updater.idle()
+            except TimedOut:
+                sleep(2)
+                self.updater.start_polling()
+                self.updater.idle()
 
 
 def start(bot, update):
@@ -37,17 +45,17 @@ def wiki(bot, update):
         message = wikipedia.summary(query.strip()).split('\n')[0]
     except wikipedia.exceptions.PageError as e:
         message = e
-        update.message.reply_text(message)
+    update.message.reply_text(message)
 
 
 def veg(bot, update):
-    '/veg query_string -- returns top for recipes from tudoreceitas.com'
+    '/veg query_string -- returns top four recipes from tudoreceitas.com'
     query = ''.join(update.message.text.split()[1:])
     res = get_recipes(query)
     if not res:
         messages = ['Not found :/']
     else:
-        messages = [re.sub('[{}]', '\n', str(i)) for i in res[:4]]
+        messages = [re.sub('[{}]', '', str(i)) for i in res[:4]]
     [update.message.reply_text(message) for message in messages]
 
 

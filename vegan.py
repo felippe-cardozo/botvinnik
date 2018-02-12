@@ -15,5 +15,5 @@ def parse(html):
     soup = BeautifulSoup(html, 'lxml')
     results = soup.find_all('div', {'class': 'resultado link'})
     return [{'titulo': i.find('a').text,
-             'intro': i.find('div', {'class': 'intro'}),
+             'intro': i.find('div', {'class': 'intro'}).text,
              'link': i.find('a')['href']} for i in results]
