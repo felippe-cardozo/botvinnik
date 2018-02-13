@@ -1,6 +1,6 @@
 from telegram.ext import Updater, CommandHandler
 from telegram.error import TimedOut
-from vegan import get_recipes
+from .vegan import get_recipes
 from time import sleep
 import logging
 import re

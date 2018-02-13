@@ -1,5 +1,5 @@
 from unittest import TestCase
-from .botvinnik import Botvinnik
+from botvinnik import Botvinnik
 import os
 
 
