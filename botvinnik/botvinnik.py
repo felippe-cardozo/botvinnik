@@ -32,6 +32,7 @@ def start(message):
     return ["Hello, my name is Botvinnik, like the fammous Grand Master."]
 
 
+@bot_command
 def wiki(message):
     '/wiki query_string -- returns wiki summary'
     query = ''.join(message.split()[1:])
@@ -42,6 +43,7 @@ def wiki(message):
     return [message]
 
 
+@bot_command
 def veg(message):
     '/veg query_string -- returns top four recipes from tudoreceitas.com'
     query = ''.join(message.split()[1:])
@@ -53,6 +55,7 @@ def veg(message):
     return messages
 
 
+@bot_command
 def _help(message):
     '/help -- prints all avaiable commands and respective docs'
     message = [i.__doc__ for i in methods]
