@@ -1,7 +1,6 @@
 from telegram.ext import Updater, CommandHandler
-from telegram.error import TimedOut
 from .vegan import get_recipes
-from time import sleep
+from .bot_decorators import bot_command
 import logging
 import re
 import os
@@ -21,51 +20,47 @@ class Botvinnik:
 
         for m in methods:
             self.dispatcher.add_handler(CommandHandler(m.__name__, m))
+        self.dispatcher.add_handler(CommandHandler('help', _help))
 
-        while True:
-            try:
-                self.updater.start_polling()
-                self.updater.idle()
-            except TimedOut:
-                sleep(2)
-                self.updater.start_polling()
-                self.updater.idle()
+        self.updater.start_polling()
+        self.updater.idle()
 
 
-def start(bot, update):
+@bot_command
+def start(message):
     '/start -- I introduce myself'
-    message = "Hello, my name is Botvinnik, like the fammous Grand Master."
-    update.message.reply_text(message)
+    return ["Hello, my name is Botvinnik, like the fammous Grand Master."]
 
 
-def wiki(bot, update):
+def wiki(message):
     '/wiki query_string -- returns wiki summary'
-    query = ''.join(update.message.text.split()[1:])
+    query = ''.join(message.split()[1:])
     try:
         message = wikipedia.summary(query.strip()).split('\n')[0]
     except wikipedia.exceptions.PageError as e:
-        message = e
-    update.message.reply_text(message)
+        message = str(e)
+    return [message]
 
 
-def veg(bot, update):
+def veg(message):
     '/veg query_string -- returns top four recipes from tudoreceitas.com'
-    query = ''.join(update.message.text.split()[1:])
+    query = ''.join(message.split()[1:])
     res = get_recipes(query)
     if not res:
         messages = ['Not found :/']
     else:
         messages = [re.sub('[{}]', '', str(i)) for i in res[:4]]
-    [update.message.reply_text(message) for message in messages]
+    return messages
 
 
-def help(bot, update):
+def _help(message):
     '/help -- prints all avaiable commands and respective docs'
-    message = '\n'.join([i.__doc__ for i in methods])
-    update.message.reply_text(message)
+    message = [i.__doc__ for i in methods]
+    message.append(_help.__doc__)
+    return ['\n'.join(message)]
 
 
-methods = [start, wiki, veg, help]
+methods = [start, wiki, veg]
 
 if __name__ == '__main__':
     Botvinnik(commands=methods)

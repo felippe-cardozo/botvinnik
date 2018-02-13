@@ -1,4 +1,3 @@
 from botvinnik.botvinnik import Botvinnik, methods
 
-
-# from vegan import *
+Botvinnik(commands=methods)
